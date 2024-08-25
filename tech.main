@@ -1,0 +1,191 @@
+Task 1: Monitoring System Resources for a Proxy Server
+
+1. **Script Setup**:
+   - Start with a basic script template that includes functions for each monitoring task.
+   - Use `watch` or a loop with a delay (e.g., `sleep`) for real-time updates.
+
+2. **Top 10 Most Used Applications**:
+   - Use `ps` or `top` to get CPU and memory usage.
+   - Filter and sort the top 10 processes by CPU and memory.
+
+   ```bash
+   top_apps() {
+       ps -eo pid,comm,%mem,%cpu --sort=-%mem,-%cpu | head -n 11
+   }
+   ```
+
+3. **Network Monitoring**:
+   - Use `netstat` or `ss` for concurrent connections.
+   - Use `ifconfig` or `ip -s link` to monitor packet drops and data in/out.
+
+   ```bash
+   network_monitor() {
+       echo "Connections: $(ss -s | grep TCP:)"
+       echo "Packet Drops: $(netstat -s | grep 'packet receive errors')"
+       ifconfig eth0 | grep 'RX packets' -A1
+   }
+   ```
+
+4. **Disk Usage**:
+   - Use `df` to check disk usage and highlight partitions above 80%.
+
+   ```bash
+   disk_usage() {
+       df -h | awk '$5 >= 80 {print $0}'
+   }
+   ```
+
+5. **System Load**:
+   - Use `uptime` for load averages and `mpstat` for CPU usage breakdown.
+
+   ```bash
+   system_load() {
+       uptime
+       mpstat
+   }
+   ```
+
+6. **Memory Usage**:
+   - Use `free` to show memory and swap usage.
+
+   ```bash
+   memory_usage() {
+       free -m
+   }
+   ```
+
+7. **Process Monitoring**:
+   - Use `ps` to display active processes and the top 5 by CPU/memory.
+
+   ```bash
+   process_monitor() {
+       ps -eo pid,comm,%mem,%cpu --sort=-%mem,-%cpu | head -n 6
+   }
+   ```
+
+8. **Service Monitoring**:
+   - Use `systemctl` or `service` commands to check the status of services.
+
+   ```bash
+   service_monitor() {
+       for service in sshd nginx iptables; do
+           systemctl is-active --quiet $service && echo "$service is running" || echo "$service is not running"
+       done
+   }
+   ```
+
+9. **Custom Dashboard**:
+   - Use command-line switches (`$1`, `$2`, etc.) to allow users to view specific parts of the dashboard.
+
+   ```bash
+   case $1 in
+       -cpu) top_apps ;;
+       -network) network_monitor ;;
+       -disk) disk_usage ;;
+       -load) system_load ;;
+       -memory) memory_usage ;;
+       -process) process_monitor ;;
+       -service) service_monitor ;;
+       *) echo "Usage: $0 {-cpu|-network|-disk|-load|-memory|-process|-service}" ;;
+   esac
+   ```
+
+10. **README**:
+    - Document how to run the script and examples of how to use each switch.
+
+### Task 2: Script for Automating Security Audits and Server Hardening on Linux Servers
+
+1. **Script Setup**:
+   - Structure the script with modular functions for each audit and hardening task.
+   - Use a configuration file to allow customization.
+
+2. **User and Group Audits**:
+   - Use `getent`, `awk`, and `grep` to list users and check UIDs.
+
+   ```bash
+   user_audit() {
+       getent passwd | awk -F: '$3 == 0 {print $1}'
+   }
+   ```
+
+3. **File and Directory Permissions**:
+   - Use `find` to search for world-writable files and check `.ssh` directories.
+
+   ```bash
+   permission_audit() {
+       find / -perm -002 -type f
+       find / -type d -name ".ssh" -exec stat -c "%a %n" {} \;
+   }
+   ```
+
+4. **Service Audits**:
+   - Use `systemctl list-units --type=service` and `netstat` to check for services and open ports.
+
+   ```bash
+   service_audit() {
+       systemctl list-units --type=service
+       netstat -tuln
+   }
+   ```
+
+5. **Firewall and Network Security**:
+   - Use `iptables -L` or `ufw status` to check firewall rules.
+
+   ```bash
+   firewall_audit() {
+       iptables -L
+   }
+   ```
+
+6. **IP and Network Configuration Checks**:
+   - Use `ip a` to list IP addresses and determine public vs. private IPs.
+
+   ```bash
+   ip_audit() {
+       ip a
+   }
+   ```
+
+7. **Security Updates and Patching**:
+   - Use `apt` or `yum` to check for updates.
+
+   ```bash
+   update_audit() {
+       apt-get update && apt-get upgrade -s
+   }
+   ```
+
+8. **Log Monitoring**:
+   - Use `grep` on log files to check for suspicious activity.
+
+   ```bash
+   log_monitor() {
+       grep 'Failed' /var/log/auth.log
+   }
+   ```
+
+9. **Server Hardening Steps**:
+   - Implement each step with specific commands, e.g., editing `sshd_config`.
+
+   ```bash
+   harden_server() {
+       sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+   }
+   ```
+
+10. **Reporting and Alerting**:
+    - Generate a summary report and use `mail` or similar for alerts.
+
+    ```bash
+    generate_report() {
+        echo "Security Audit Report" > /var/log/security_audit_report.log
+    }
+    ```
+
+11. **README**:
+    - Include instructions for setup, configuration, and usage examples.
+
+### Version Control:
+- Use meaningful commit messages and a structured directory for the scripts and configurations.
+
+These scripts, along with the README, should be uploaded to GitHub, ensuring they are well-documented and easily customizable.
